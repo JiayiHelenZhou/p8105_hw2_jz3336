@@ -70,3 +70,83 @@ left_join(precip_df, month_df, by = "month")
 
 This data set contains information from the Mr. Trash Wheel Collector in Baltimore, Maryland. As trash enter the inner harbor, the trash wheel collect the trash, and store it in a dumpster. The data set contain information on year, month, and trash collected, including some specific kinds of trash. There are a total of `r nrow(trashwheel_df)` rows in ours final data set. Additional data sheets include month precipitation data.
 
+
+## Problem 2
+
+#### Read the NYC transit data:
+
+```{r}
+nyc_transit_df =
+  read_csv("./hw2_data/NYC_Transit_Subway_Entrance_And_Exit_Data.csv") %>%
+  janitor::clean_names() %>%
+  mutate(
+    route8 = as.character(route8),
+    route9 = as.character(route9),
+    route10 = as.character(route10),
+    route11 = as.character(route11)) %>%
+  pivot_longer(
+    route1:route11,
+    names_to = "route_name",
+    names_prefix = "route",
+    values_to = "route_number"
+  ) %>%
+  select(line, station_name, station_location, route_name, route_number, entry, vending, entrance_type, ada) %>%
+  rename(station_latitude_longitude = station_location, ada_compliance = ada) %>%
+  mutate(entry = recode(entry, "YES" = TRUE, "NO" = FALSE)) %>% 
+  arrange(route_name, route_number)
+```
+
+This data set contains information from the NYC transit data. First, I used clean_names function from janitor package to clean up the variable names. In order to use pivot_longer to organize routes, I changed values in route8 to route11 from numbers to characters with mutate function. There are 11 routes in total, and each route have different corresponding values, such as R, N,Q and so on. I have organized route1~route11 with pivot_longer function into the route_name variable, and the corresponding letters and numbers are saved in route_number. After tidying up the data set, I have select to retain columns of the line, station, name, station latitude / longitude, routes served, entry, vending, entrance type, and ADA compliance from the original data. In the end, recode function was used within mutate function to change entry from character variable to logical variable. The dimension of the data set is [`r dim(nyc_transit_df)`], where `r nrow(nyc_transit_df)` is the number of rows, and `r ncol(nyc_transit_df)` is the number of columns.
+
+#### To answer questions about the NYC transit data:
+```{r}
+distinct_nyc_transit_df =
+  distinct(nyc_transit_df, line,station_name, .keep_all = TRUE)
+```
+
+1. The number of distinct stations is `r nrow(distinct_nyc_transit_df)`.
+2. The number of stations that are ADA compliant is `r filter(distinct_nyc_transit_df, ada_compliance == TRUE) %>% nrow()`.
+3. `r filter(nyc_transit_df, vending == "NO", entry == TRUE) %>% nrow()` out of `r filter(nyc_transit_df, vending == "NO") %>% nrow()` station entrances / exits without vending allow entrance.
+
+There are `r filter(distinct_nyc_transit_df, route_number == "A") %>% nrow()` distinct stations served train A.
+There are `r filter(distinct_nyc_transit_df, route_number == "A", ada_compliance == TRUE) %>% nrow()` stations not only serve train A but also ADA compliant.
+
+## Problem 3
+
+Read and clean pols-month.csv:
+
+```{r}
+pols_month = 
+  read_csv("./hw2_data/fivethirtyeight_datasets/pols-month.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(mon, into = c("year", "month", "day"), sep = "-") %>% 
+  mutate(month = as.integer(month))
+  
+month_df = 
+  tibble(
+    month = 1:12,
+    month_name = month.name
+  )
+
+pols_month_tidy = 
+  left_join(pols_month, month_df, by = "month")
+
+gop_pols_month = 
+  filter(pols_month_tidy, prez_gop == 1) %>% 
+  mutate(prez_gop = as.character(prez_gop)) %>% 
+  mutate(prez_gop = recode(prez_gop, "1" = "gop")) %>% 
+  rename(president = prez_gop)
+
+dem_pols_month = 
+  filter(pols_month_tidy, prez_dem == 1) %>% 
+  mutate(prez_dem = as.character(prez_dem)) %>% 
+  mutate(prez_dem = recode(prez_dem, "1" = "dem")) %>% 
+  rename(president = prez_dem)
+
+president_pols_month_tidy =
+  left_join(gop_pols_month, dem_pols_month)%>% 
+  select(year, month_name, president, gov_gop, sen_gop, rep_gop, gov_dem, sen_dem, rep_dem) %>% 
+  arrange(year)
+```
+
+
