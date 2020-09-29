@@ -102,11 +102,15 @@ This data set contains information from the NYC transit data. First, I used clea
 ```{r}
 distinct_nyc_transit_df =
   distinct(nyc_transit_df, line,station_name, .keep_all = TRUE)
+
+entry_no_vending = filter(nyc_transit_df, vending == "NO", entry == TRUE) %>% nrow()
+no_vending = filter(nyc_transit_df, vending == "NO") %>% nrow()
+percentage = entry_no_vending/no_vending
 ```
 
 1. The number of distinct stations is `r nrow(distinct_nyc_transit_df)`.
 2. The number of stations that are ADA compliant is `r filter(distinct_nyc_transit_df, ada_compliance == TRUE) %>% nrow()`.
-3. `r filter(nyc_transit_df, vending == "NO", entry == TRUE) %>% nrow()` out of `r filter(nyc_transit_df, vending == "NO") %>% nrow()` station entrances / exits without vending allow entrance.
+3. `r entry_no_vending` out of `r no_vending` station entrances / exits without vending allow entrance. The proportion is `r percentage`.
 
 There are `r filter(distinct_nyc_transit_df, route_number == "A") %>% nrow()` distinct stations served train A.
 There are `r filter(distinct_nyc_transit_df, route_number == "A", ada_compliance == TRUE) %>% nrow()` stations not only serve train A but also ADA compliant.
@@ -216,3 +220,5 @@ The first pols_moth.csv dataset contains information about national politicians.
 The second snp.csv dataset contains information about Standard & Poor’s stock market index (S&P). To clean up the data set, I separate the "date" variable into "year", "month" and day". Then, similar to treating the pols_month data, I create a month tibble and left_joint it to the snp. By doing this, all numeric month will be converted to character month in the full name. There are only three variables after cleaning up the snp data set, where the "close" variable indicates the closing values of the S&P stock index on the associated date. After clean up the data set and rename it to snp_df_tidy, the dimension of the cleaned data is [`r dim(snp_df_tidy)`], where `r nrow(snp_df_tidy)` is the number of rows and `r ncol(snp_df_tidy)` is the number of columns. The year range of this data set is `r range(pull(snp_df_tidy, year))`.
 
 The third unemployment.csv dataset contains information about the percentage of unemployment in the associate month of selected years. To clean up the data set, I used pivot_longer to combine all months variable as "month" while putting the associate unemployment percentages into the "unemployment" column. Then, I create a month tibble which contain the lower-case abbreviation of each month and month.name vectors. By left_jointing this month tibble to the unemployment_df, all lower-case abbreviations of each month will be converted to character month in the full name. There are only three variables after cleaning up the unemployment data set, where the "unemployment" variable indicates the percentage of unemployment in associate month of the associated year. After clean up the data set and rename it to unemployment_df_tidy, the dimension of the cleaned data is [`r dim(unemployment_df_tidy)`], where `r nrow(unemployment_df_tidy)` is the number of rows and `r ncol(unemployment_df_tidy)` is the number of columns. The year range of this data set is `r range(pull(unemployment_df_tidy, year))`.
+
+The final_df is created by merging all three datasets by "year" and "month_name". The dimension of the final_df is [`r dim(final_df)`], where `r nrow(final_df)` is the number of rows and `r ncol(final_df)` is the number of columns. The year range of this data set is `r range(pull(final_df, year))`.
