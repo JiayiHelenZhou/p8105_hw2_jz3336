@@ -209,3 +209,8 @@ final_df =
   left_join(unemployment_df_tidy, by = c("year","month_name"))
 ```
 
+There were three datasets: pols_month.csv, snp.csv, and unemployment.csv. 
+
+The first pols_moth.csv dataset contain information about national politicians. After clean up the data set and rename it to pols_month_tidy, the dimension of the cleaned data is [`r dim(pols_month_tidy)`], where `r nrow(pols_month_tidy)` is the number of rows and `r ncol(pols_month_tidy)` is the number of columns. The "president" variable is created to contain democratic (dem) or republican (gop) at any given time. The year range of this data set is `r range(pull(pols_month_tidy, year))`.
+
+
