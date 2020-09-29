@@ -205,7 +205,7 @@ Join the three datasets:
 
 ```{r}
 final_df = 
-  left_join(snp_df_tidy,pols_month_tidy, by = c("year","month_name")) %>% 
+  left_join(pols_month_tidy,snp_df_tidy, by = c("year","month_name")) %>% 
   left_join(unemployment_df_tidy, by = c("year","month_name"))
 ```
 
