@@ -120,7 +120,7 @@ pols_month =
   read_csv("./hw2_data/fivethirtyeight_datasets/pols-month.csv") %>% 
   janitor::clean_names() %>% 
   separate(mon, into = c("year", "month", "day"), sep = "-") %>% 
-  mutate(month = as.integer(month))
+  mutate(month = as.integer(month), year = as.integer(year))
   
 month_df = 
   tibble(
@@ -129,24 +129,31 @@ month_df =
   )
 
 pols_month_tidy = 
-  left_join(pols_month, month_df, by = "month")
-
-gop_pols_month = 
-  filter(pols_month_tidy, prez_gop == 1) %>% 
-  mutate(prez_gop = as.character(prez_gop)) %>% 
-  mutate(prez_gop = recode(prez_gop, "1" = "gop")) %>% 
-  rename(president = prez_gop)
-
-dem_pols_month = 
-  filter(pols_month_tidy, prez_dem == 1) %>% 
-  mutate(prez_dem = as.character(prez_dem)) %>% 
-  mutate(prez_dem = recode(prez_dem, "1" = "dem")) %>% 
-  rename(president = prez_dem)
-
-president_pols_month_tidy =
-  left_join(gop_pols_month, dem_pols_month)%>% 
-  select(year, month_name, president, gov_gop, sen_gop, rep_gop, gov_dem, sen_dem, rep_dem) %>% 
+  left_join(pols_month, month_df, by = "month") %>% 
+  mutate(president = 
+           case_when(
+             prez_gop == 1 ~ "gop",
+             prez_dem == 1 ~ "dem")) %>%
+  select(year, month_name, president, gov_gop, sen_gop, rep_gop, gov_dem, sen_dem, rep_dem) %>%
   arrange(year)
+
+##Another way that I have tried.
+##gop_pols_month = 
+##  filter(pols_month_tidy, prez_gop == 1) %>% 
+##  mutate(prez_gop = as.character(prez_gop)) %>% 
+##  mutate(prez_gop = recode(prez_gop, "1" = "gop")) %>% 
+##  rename(president = prez_gop)
+##
+##dem_pols_month = 
+##  filter(pols_month_tidy, prez_dem == 1) %>% 
+##  mutate(prez_dem = as.character(prez_dem)) %>% 
+##  mutate(prez_dem = recode(prez_dem, "1" = "dem")) %>% 
+##  rename(president = prez_dem)
+##
+##president_pols_month_tidy =
+##  bind_row(gop_pols_month, dem_pols_month)%>% 
+##  select(year, month_name, president, gov_gop, sen_gop, rep_gop, gov_dem, sen_dem, rep_dem) %>% 
+##  arrange(year)
 ```
 
 
